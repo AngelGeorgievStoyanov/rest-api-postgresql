@@ -3,6 +3,7 @@ import { Pool } from "pg";
 import { tableNotes, tableUsers } from "./db/createSQL";
 import cors from "cors";
 import bodyParser from "body-parser";
+import authController from "./controllers/authController";
 
 const app = express();
 const PORT = 8080;
@@ -14,7 +15,13 @@ const HOST = "localhost"; // Database host
 const DB = "postgres"; // Database name
 const PASSWORD = "1234"; // Database connection password
 const PORTDB = 5432; // Database connection port
-
+const pool = new Pool({
+    user: USER,
+    host: HOST,
+    database: DB,
+    password: PASSWORD,
+    port: PORTDB,
+  });
 // Note: In production environment, the above configuration variables should be
 // moved to a .env file to ensure data security and ease of management.
 
@@ -34,14 +41,8 @@ app.use(
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.raw({ limit: "50mb", inflate: true }));
 
-const pool = new Pool({
-  user: USER,
-  host: HOST,
-  database: DB,
-  password: PASSWORD,
-  port: PORTDB,
-});
 
+app.use("/auth", authController(pool));
 async function initializeDatabase() {
   const client = await pool.connect();
   try {
