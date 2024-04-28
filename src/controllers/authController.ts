@@ -6,7 +6,7 @@ import { IUser } from "../interfaces/IUser";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
-const secret = "top secret!";
+export const secret = "top secret!";
 
 export default function authController(pool: Pool) {
   const router = express.Router();

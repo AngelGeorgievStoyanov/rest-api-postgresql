@@ -1,18 +1,19 @@
 import express from "express";
 import { Pool } from "pg";
 import {
-    complitedNoteById,
+  completedNoteById,
   create,
   deleteNoteById,
   getAllNotesByOwnerId,
   getNoteById,
   updateNoteById,
 } from "../services/noteService";
+import { authenticateToken } from "../guard/jwt.middleware";
 
 export default function noteController(pool: Pool) {
   const router = express.Router();
 
-  router.post("/create", async (req, res) => {
+  router.post("/create", authenticateToken, async (req, res) => {
     try {
       const userId = req.body._ownerId;
       try {
@@ -74,11 +75,11 @@ export default function noteController(pool: Pool) {
     }
   });
 
-  router.post("/complited/:noteId", async (req, res) => {
+  router.post("/completed/:noteId", async (req, res) => {
     const noteId = req.params.noteId;
     const note = req.body;
     try {
-      const updatedNote = await complitedNoteById(pool, note, noteId);
+      const updatedNote = await completedNoteById(pool, note, noteId);
       res.status(200).json(updatedNote);
     } catch (err) {
       console.log(err.message);

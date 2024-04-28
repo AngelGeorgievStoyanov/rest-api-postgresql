@@ -8,8 +8,8 @@ const createSql = `INSERT INTO notes (
     "content",
     "createdAt",
     "editedAt",
-    "complited",
-    "complitedAt",
+    "completed",
+    "completedAt",
     "_ownerId"
   )
    VALUES ( $1, $2, $3, $4, $5, $6, $7, $8);`;
@@ -18,7 +18,7 @@ const selectNote = "SELECT * FROM notes WHERE _id = $1;";
 const selectNoteByOwnerId = `SELECT * FROM notes WHERE "_ownerId" = $1;`;
 const selectNoteById = `SELECT * FROM notes WHERE "_id" = $1;`;
 const updateNote = `UPDATE notes SET "title" = $1, "content" = $2, "editedAt" = $3 WHERE _id = $4`;
-const complitedNote = `UPDATE notes SET "complitedAt" = $1, "complited" = $2 WHERE _id = $3`;
+const completedNote = `UPDATE notes SET "completedAt" = $1, "completed" = $2 WHERE _id = $3`;
 const deleteOne = `DELETE from notes WHERE _id = $1`;
 
 export async function create(pool: Pool, note: INote): Promise<INote> {
@@ -168,17 +168,17 @@ export async function deleteNoteById(
   });
 }
 
-export async function complitedNoteById(
+export async function completedNoteById(
   pool: Pool,
   note: INote,
   noteId: string
 ): Promise<INote> {
-  const complitedAt = note.complited ? null : new Date().toISOString();
+  const completedAt = note.completed ? null : new Date().toISOString();
   return new Promise((resolve, reject) => {
     if (note.title !== null) {
       pool.query(
-        complitedNote,
-        [complitedAt, !note.complited, noteId],
+        completedNote,
+        [completedAt, !note.completed, noteId],
         (err, result) => {
           if (err) {
             console.log(err);

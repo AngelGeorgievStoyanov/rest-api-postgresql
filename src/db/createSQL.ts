@@ -14,7 +14,7 @@ export const tableNotes =`CREATE TABLE  IF NOT EXISTS notes (
     "content" VARCHAR(2000) NOT NULL,
     "createdAt" VARCHAR(45) NULL DEFAULT NULL,
     "editedAt" VARCHAR(45) NULL DEFAULT NULL,
-    "complited" BOOLEAN NULL DEFAULT FALSE,
-    "complitedAt" VARCHAR(45) NULL DEFAULT NULL,
+    "completed" BOOLEAN NULL DEFAULT FALSE,
+    "completedAt" VARCHAR(45) NULL DEFAULT NULL,
     "_ownerId" VARCHAR(36) NOT NULL,
     PRIMARY KEY (_id));`
