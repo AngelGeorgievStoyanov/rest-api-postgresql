@@ -15,6 +15,7 @@ const createSql = `INSERT INTO notes (
    VALUES ( $1, $2, $3, $4, $5, $6, $7, $8);`;
 
 const selectNote = "SELECT * FROM notes WHERE _id = $1;";
+const selectNoteByOwnerId = `SELECT * FROM notes WHERE "_ownerId" = $1;`;
 
 export async function create(pool: Pool, note: INote): Promise<INote> {
   const _id = uuidv4();
@@ -53,5 +54,26 @@ export async function create(pool: Pool, note: INote): Promise<INote> {
         }
       }
     );
+  });
+}
+
+export async function getAllNotesByOwnerId(
+  pool: Pool,
+  ownerId: string
+): Promise<INote[]> {
+  return new Promise((resolve, reject) => {
+    pool.query(selectNoteByOwnerId, [ownerId], (err, result) => {
+      if (err) {
+        console.log(err);
+        reject(err);
+        return;
+      }
+
+      if (result.rows.length > 0) {
+        resolve(result.rows);
+      } else {
+        resolve(null);
+      }
+    });
   });
 }
