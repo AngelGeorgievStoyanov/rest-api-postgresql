@@ -1,6 +1,11 @@
 import express from "express";
 import { Pool } from "pg";
-import { create, getAllNotesByOwnerId } from "../services/noteService";
+import {
+  create,
+  getAllNotesByOwnerId,
+  getNoteById,
+  updateNoteById,
+} from "../services/noteService";
 
 export default function noteController(pool: Pool) {
   const router = express.Router();
@@ -32,5 +37,28 @@ export default function noteController(pool: Pool) {
     }
   });
 
+  router.get("/getNoteById/:noteId", async (req, res) => {
+    try {
+      const noteId = req.params.noteId;
+      const note = await getNoteById(pool, noteId);
+      res.status(200).json(note);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
+
+  router.post("/update/:noteId", async (req, res) => {
+    const noteId = req.params.noteId;
+    const userId = req.body._ownerId;
+    const note = req.body.data;
+    try {
+      const updatedNote = await updateNoteById(pool, note, noteId);
+      res.status(200).json(updatedNote);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
   return router;
 }
