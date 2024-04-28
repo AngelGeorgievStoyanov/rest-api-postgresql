@@ -4,6 +4,7 @@ import { tableNotes, tableUsers } from "./db/createSQL";
 import cors from "cors";
 import bodyParser from "body-parser";
 import authController from "./controllers/authController";
+import noteController from "./controllers/noteController";
 
 const app = express();
 const PORT = 8080;
@@ -43,6 +44,7 @@ app.use(bodyParser.raw({ limit: "50mb", inflate: true }));
 
 
 app.use("/auth", authController(pool));
+app.use("/note", noteController(pool));
 async function initializeDatabase() {
   const client = await pool.connect();
   try {

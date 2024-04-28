@@ -93,10 +93,6 @@ function createToken(user: IUser) {
   };
 
   return {
-    _id: user._id,
-    email: user.email,
-    firstName: user.firstName,
-    lastName: user.lastName,
     accessToken: jwt.sign(payload, secret),
   };
 }
