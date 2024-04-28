@@ -17,7 +17,9 @@ const createSql = `INSERT INTO notes (
 const selectNote = "SELECT * FROM notes WHERE _id = $1;";
 const selectNoteByOwnerId = `SELECT * FROM notes WHERE "_ownerId" = $1;`;
 const selectNoteById = `SELECT * FROM notes WHERE "_id" = $1;`;
-const updateNote = `UPDATE notes SET title =$1, content=$2, "editedAt"=$3 WHERE _id =$4`;
+const updateNote = `UPDATE notes SET "title" = $1, "content" = $2, "editedAt" = $3 WHERE _id = $4`;
+const complitedNote = `UPDATE notes SET "complitedAt" = $1, "complited" = $2 WHERE _id = $3`;
+const deleteOne = `DELETE from notes WHERE _id = $1`;
 
 export async function create(pool: Pool, note: INote): Promise<INote> {
   const _id = uuidv4();
@@ -112,6 +114,71 @@ export async function updateNoteById(
       pool.query(
         updateNote,
         [note.title, note.content, editedAt, noteId],
+        (err, result) => {
+          if (err) {
+            console.log(err);
+            reject(err);
+            return;
+          }
+          if (result.rowCount === 1) {
+            pool.query(selectNote, [noteId], (err, result) => {
+              if (err) {
+                console.log(err);
+                reject(err);
+                return;
+              }
+              const note = result.rows[0];
+              resolve(note);
+            });
+          } else {
+            resolve(null);
+          }
+        }
+      );
+    }
+  });
+}
+
+export async function deleteNoteById(
+  pool: Pool,
+  noteId: string
+): Promise<INote> {
+  return new Promise((resolve, reject) => {
+    pool.query(selectNoteById, [noteId], (err, result) => {
+      if (err) {
+        console.log(err);
+        reject(err);
+        return;
+      }
+
+      const note = result.rows[0];
+      pool.query(deleteOne, [noteId], (err, result) => {
+        if (err) {
+          console.log(err);
+          reject(err);
+          return;
+        }
+        if (result) {
+          resolve(note);
+        } else {
+          resolve(note);
+        }
+      });
+    });
+  });
+}
+
+export async function complitedNoteById(
+  pool: Pool,
+  note: INote,
+  noteId: string
+): Promise<INote> {
+  const complitedAt = note.complited ? null : new Date().toISOString();
+  return new Promise((resolve, reject) => {
+    if (note.title !== null) {
+      pool.query(
+        complitedNote,
+        [complitedAt, !note.complited, noteId],
         (err, result) => {
           if (err) {
             console.log(err);

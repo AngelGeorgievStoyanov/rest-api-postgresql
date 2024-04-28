@@ -1,7 +1,9 @@
 import express from "express";
 import { Pool } from "pg";
 import {
+    complitedNoteById,
   create,
+  deleteNoteById,
   getAllNotesByOwnerId,
   getNoteById,
   updateNoteById,
@@ -60,5 +62,29 @@ export default function noteController(pool: Pool) {
       res.status(400).json(err.message);
     }
   });
+
+  router.delete("/delete/:noteId", async (req, res) => {
+    const noteId = req.params.noteId;
+    try {
+      const deletedNote = await deleteNoteById(pool, noteId);
+      res.status(200).json(deletedNote);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
+
+  router.post("/complited/:noteId", async (req, res) => {
+    const noteId = req.params.noteId;
+    const note = req.body;
+    try {
+      const updatedNote = await complitedNoteById(pool, note, noteId);
+      res.status(200).json(updatedNote);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
+
   return router;
 }
