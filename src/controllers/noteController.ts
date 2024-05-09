@@ -13,7 +13,9 @@ import { authenticateToken } from "../guard/jwt.middleware";
 export default function noteController(pool: Pool) {
   const router = express.Router();
 
-  router.post("/create", authenticateToken, async (req, res) => {
+  router.use(authenticateToken);
+  
+  router.post("/create", async (req, res) => {
     try {
       const userId = req.body._ownerId;
       try {
