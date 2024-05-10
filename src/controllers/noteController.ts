@@ -4,8 +4,10 @@ import {
   completedNoteById,
   create,
   deleteNoteById,
+  deleteNotesFromTable,
   getAllNotesByOwnerId,
   getNoteById,
+  markTableNotesAsCompleted,
   updateNoteById,
 } from "../services/noteService";
 import { authenticateToken } from "../guard/jwt.middleware";
@@ -14,7 +16,7 @@ export default function noteController(pool: Pool) {
   const router = express.Router();
 
   router.use(authenticateToken);
-  
+
   router.post("/create", async (req, res) => {
     try {
       const userId = req.body._ownerId;
@@ -83,6 +85,34 @@ export default function noteController(pool: Pool) {
     try {
       const updatedNote = await completedNoteById(pool, note, noteId);
       res.status(200).json(updatedNote);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
+
+  router.post("/tableCompleted", async (req, res) => {
+    const notes = req.body;
+
+    const userId = req["user"]["_id"];
+
+    try {
+      const updatedNotes = await markTableNotesAsCompleted(pool, notes, userId);
+      res.status(200).json(updatedNotes);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).json(err.message);
+    }
+  });
+
+  router.delete("/tableDeleteNotes", async (req, res) => {
+    const notes = req.body;
+
+    const userId = req["user"]["_id"];
+    
+    try {
+      const result = await deleteNotesFromTable(pool, notes,userId);
+      res.status(200).json(result);
     } catch (err) {
       console.log(err.message);
       res.status(400).json(err.message);

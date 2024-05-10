@@ -203,3 +203,65 @@ export async function completedNoteById(
     }
   });
 }
+
+export async function markTableNotesAsCompleted(
+  pool: Pool,
+  ids: string[],
+  userId: string
+): Promise<INote[]> {
+  const placeholders = ids.map((_, index) => `$${index + 1}`).join(", ");
+  const queryText = `UPDATE notes SET "completedAt" = NOW(), "completed" = true WHERE "_id" IN (${placeholders})`;
+
+  const queryParams = ids;
+
+  const query = {
+    text: queryText,
+    values: queryParams,
+  };
+
+  return new Promise<INote[]>((resolve, reject) => {
+    pool.query(query, (err, result) => {
+      if (err) {
+        console.error(err.stack);
+        reject(err);
+      } else {
+
+        const notes = getAllNotesByOwnerId(pool,userId)
+        resolve(notes);
+      }
+    });
+  });
+}
+
+
+
+
+export async function deleteNotesFromTable(
+  pool: Pool,
+  ids: string[],
+  userId: string
+): Promise<INote[]> {
+  const placeholders = ids.map((_, index) => `$${index + 1}`).join(", ");
+  const queryText = `DELETE from notes WHERE "_id" IN (${placeholders})`;
+
+  const queryParams = ids;
+
+  const query = {
+    text: queryText,
+    values: queryParams,
+  };
+
+  return new Promise<INote[]>((resolve, reject) => {
+    pool.query(query, (err, result) => {
+      if (err) {
+        console.error(err.stack);
+        reject(err);
+      } else {
+
+        const notes = getAllNotesByOwnerId(pool,userId)
+        resolve(notes);
+      }
+    });
+  });
+}
+
