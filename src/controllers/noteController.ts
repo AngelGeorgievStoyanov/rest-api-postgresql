@@ -33,16 +33,28 @@ export default function noteController(pool: Pool) {
     }
   });
 
-  router.get("/getNotesByOwnerId/:ownerId", async (req, res) => {
-    try {
-      const ownerId = req.params.ownerId;
-      const notes = await getAllNotesByOwnerId(pool, ownerId);
-      res.status(200).json(notes);
-    } catch (err) {
-      console.log(err.message);
-      res.status(400).json(err.message);
+  router.get(
+    "/getNotesByOwnerId/:ownerId/page/:page/pageSize/:pageSize/sortOrder/:sortOrder",
+    async (req, res) => {
+      try {
+        const ownerId = req.params.ownerId;
+        const page = Number(req.params.page);
+        const pageSize = Number(req.params.pageSize);
+        const sortOrder = req.params.sortOrder;
+        const notes = await getAllNotesByOwnerId(
+          pool,
+          ownerId,
+          page,
+          pageSize,
+          sortOrder
+        );
+        res.status(200).json(notes);
+      } catch (err) {
+        console.log(err.message);
+        res.status(400).json(err.message);
+      }
     }
-  });
+  );
 
   router.get("/getNoteById/:noteId", async (req, res) => {
     try {
@@ -92,12 +104,21 @@ export default function noteController(pool: Pool) {
   });
 
   router.post("/tableCompleted", async (req, res) => {
-    const notes = req.body;
-
+    const notes = req.body.data;
+    const page = Number(req.body.paginationAndSorting.page);
+    const pageSize = Number(req.body.paginationAndSorting.pageSize);
+    const sortOrder = req.body.paginationAndSorting.sortOrder;
     const userId = req["user"]["_id"];
 
     try {
-      const updatedNotes = await markTableNotesAsCompleted(pool, notes, userId);
+      const updatedNotes = await markTableNotesAsCompleted(
+        pool,
+        notes,
+        userId,
+        page,
+        pageSize,
+        sortOrder
+      );
       res.status(200).json(updatedNotes);
     } catch (err) {
       console.log(err.message);
@@ -106,12 +127,21 @@ export default function noteController(pool: Pool) {
   });
 
   router.delete("/tableDeleteNotes", async (req, res) => {
-    const notes = req.body;
-
+    const notes = req.body.data;
+    let page = Number(req.body.paginationAndSorting.page);
+    const pageSize = Number(req.body.paginationAndSorting.pageSize);
+    const sortOrder = req.body.paginationAndSorting.sortOrder;
     const userId = req["user"]["_id"];
-    
+
     try {
-      const result = await deleteNotesFromTable(pool, notes,userId);
+      const result = await deleteNotesFromTable(
+        pool,
+        notes,
+        userId,
+        page=0,
+        pageSize,
+        sortOrder
+      );
       res.status(200).json(result);
     } catch (err) {
       console.log(err.message);
