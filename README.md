@@ -35,7 +35,7 @@ npm run dev
 
 # Notes
 * POST /note/create: Create a new note.
-* GET /note/getNotesByOwnerId/:ownerId: Get all notes by owner ID.
+* GET /note/getNotesByOwnerId/:ownerId/page/:page/pageSize/:pageSize/sortOrder/:sortOrder: Get notes by owner ID with  pagination and sorting.
 * GET /note/getNoteById/:noteId: Get a note by ID.
 * POST /note/update/:noteId: Update a note by ID.
 * DELETE /note/delete/:noteId: Delete a note by ID.
