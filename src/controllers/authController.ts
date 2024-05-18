@@ -5,49 +5,53 @@ import { Pool } from "pg";
 import { IUser } from "../interfaces/IUser";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { trimBody } from "../guard/trim.body.middleware";
 
 export const secret = "top secret!";
 
 export default function authController(pool: Pool) {
   const router = express.Router();
+  router.use(trimBody);
 
   router.post(
     "/register",
     body("email").isEmail().withMessage("Invalid email"),
 
     body("password")
-      .isLength({ min: 3 })
-      .withMessage("Password must be at least 3 characters long"),
+      .matches(
+        /^(?=(.*[a-zA-Z]){1,})(?=(.*[\d]){1,})(?=(.*[\W]){1,})(?!.*\s).{8,}$/
+      )
+      .withMessage(
+        "Password must contain 8 characters, at least one digit, and one character different from letter or digit"
+      ),
 
     async (req, res) => {
       try {
-        const errors = validationResult(req);
-
-        if (!errors.isEmpty()) {
-          throw errors;
+        const errors = validationResult(req).array() as unknown as {
+          path: string;
+          msg: string;
+        }[];
+        if (errors.length > 0) {
+          const errorMessage = errors
+            .map((error) => `${error.path}: ${error.msg}`)
+            .join("\n");
+          console.log(errorMessage);
+          throw new Error(errorMessage);
         }
-      } catch (error) {
-        res.status(400).json(error.message);
-      }
-      try {
+
         const existing = await findByEmail(pool, req.body.email);
 
         if (existing !== null && existing.email === req.body.email) {
           throw new Error("Email is taken");
         }
 
-        try {
-          const { email, firstName, lastName, password } = req.body;
-          const user = await create(pool, email, firstName, lastName, password);
-          const token = createToken(user);
-          res.status(201).json(token);
-        } catch (err) {
-          console.log(err);
-          res.status(400).json(err.message);
-        }
-      } catch (err) {
-        console.log(err);
-        res.status(400).json(err.message);
+        const { email, firstName, lastName, password } = req.body;
+        const user = await create(pool, email, firstName, lastName, password);
+        const token = createToken(user);
+        res.status(201).json(token);
+      } catch (error) {
+        console.log(error);
+        res.status(400).json(error.message);
       }
     }
   );
@@ -56,10 +60,10 @@ export default function authController(pool: Pool) {
     try {
       const email = req.body.email;
 
-      const user = await findByEmail(pool, req.body.email);
-      
-      if (!user || (user && user.email !== req.body.email)) {
-        console.log(req.body.email);
+      const user = await findByEmail(pool, email);
+
+      if (!user || (user && user.email !== email)) {
+        console.log(email);
         throw new Error("Incorrect email or password");
       }
 
