@@ -40,9 +40,15 @@ npm run dev
 * POST /note/update/:noteId: Update a note by ID.
 * DELETE /note/delete/:noteId: Delete a note by ID.
 * POST /note/completed/:noteId: Mark a note as completed.
-
+* POST /note/tableCompleted: Mark multiple notes as completed.
+* DELETE /note/tableDeleteNotes: Delete multiple notes.
 
 ## Frontend Integration
 
 This REST API is intended to be used in conjunction with the corresponding frontend project. The frontend can be found at: [notes-react-ts](https://github.com/AngelGeorgievStoyanov/notes-react-ts).
 
+
+## Alternative Implementations
+This project also has an alternative implementation using TypeORM for ORM (Object-Relational Mapping) with PostgreSQL. You can find the TypeORM-based implementation at: [rest-api-typeorm] (https://github.com/AngelGeorgievStoyanov/rest-api-typeorm-pg).
+
+Similarly, the TypeORM project mentions the original implementation using raw PostgreSQL queries, providing flexibility based on your preferences and project requirements.
